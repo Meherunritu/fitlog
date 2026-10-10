@@ -13,6 +13,7 @@ export function WorkoutDetails() {
     [fetching, setFetching] = useState(false);
   useEffect(() => {
     setRemote(null);
+    setFetching(false);
     if (!id || id.startsWith("sample-")) return;
     const controller = new AbortController();
     setFetching(true);

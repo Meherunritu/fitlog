@@ -4,4 +4,5 @@ out/
 .env*
 !.env.example
 *.log
-.openai/
+.openai/*
+!.openai/hosting.json
