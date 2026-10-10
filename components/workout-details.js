@@ -1,7 +1,125 @@
-'use client';
-import {useSearchParams} from 'next/navigation';
-import Link from 'next/link';
-import {ArrowLeft,Plus,Bookmark,Check} from 'lucide-react';
-import {useFit} from './fit-provider';
-import {Loading,Tags,WorkoutImage} from './ui';
-export function WorkoutDetails(){const id=useSearchParams().get('id');const {workouts,loading,plan,saved,ready,add,save}=useFit();const w=workouts.find(w=>w.id===id)||plan.find(w=>w.id===id)||saved.find(w=>w.id===id);if(loading||!ready)return <div className="container page"><Loading/></div>;if(!w)return <div className="container empty"><p className="eyebrow">404 / WORKOUT NOT FOUND</p><h1>THIS LIFT ISN'T HERE.</h1><p>The workout link is invalid or the workout is unavailable.</p><Link className="btn primary" href="/">Go to workouts</Link></div>;const inPlan=plan.some(x=>x.id===w.id),isSaved=saved.some(x=>x.id===w.id),full=plan.filter(x=>!x.done).length>=5;return <section className="container page"><Link href="/#library" className="back-link"><ArrowLeft size={16}/> Back to library</Link>{w.sample&&<p className="sample-label">OFFLINE SAMPLE WORKOUT</p>}<div className="detail-grid"><div className="detail-visual"><WorkoutImage workout={w}/></div><div><h1 className="detail-title">{w.name}</h1><p className="detail-description">{w.description}</p><Tags workout={w}/><dl className="specs">{[['Equipment',w.equipment],['Difficulty',w.difficulty],['Sets',w.sets],['Reps',w.reps],['Duration',`${w.duration} min`],['Calories',`${w.calories} kcal`],['Rating',w.rating.toFixed(1)]].map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><h2 className="instructions-title">INSTRUCTIONS</h2><ol className="instructions">{w.instructions.map((step,i)=><li key={i}><span>{i+1}.</span>{step}</li>)}</ol>{!w.instructions.length&&<p>Instructions were not provided by the API.</p>}<div className="detail-actions"><button className="btn primary" onClick={()=>add(w)} disabled={inPlan||full}>{inPlan?<Check size={17}/>:<Plus size={17}/>} {inPlan?'Already in your plan':full?'Plan full (5 active lifts)':"Add to today's plan"}</button><button className="btn secondary" onClick={()=>save(w)} disabled={isSaved}><Bookmark size={17}/>{isSaved?'Saved for later':'Save for later'}</button></div>{full&&!inPlan&&<p className="helper">Finish or remove a lift in My Plan to make room.</p>}</div></div></section>;}
+"use client";
+import { useEffect, useState } from "react";
+import { fetchWorkout } from "../lib/workouts.mjs";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Plus, Bookmark, Check } from "lucide-react";
+import { useFit } from "./fit-provider";
+import { Loading, Tags, WorkoutImage } from "./ui";
+export function WorkoutDetails() {
+  const id = useSearchParams().get("id");
+  const { workouts, loading, plan, saved, ready, add, save } = useFit();
+  const [remote, setRemote] = useState(null),
+    [fetching, setFetching] = useState(false);
+  useEffect(() => {
+    setRemote(null);
+    if (!id || id.startsWith("sample-")) return;
+    const controller = new AbortController();
+    setFetching(true);
+    fetchWorkout(id, controller.signal)
+      .then(setRemote)
+      .catch(() => {})
+      .finally(() => {
+        if (!controller.signal.aborted) setFetching(false);
+      });
+    return () => controller.abort();
+  }, [id]);
+  const w =
+    (remote?.id === id ? remote : null) ||
+    workouts.find((w) => w.id === id) ||
+    plan.find((w) => w.id === id) ||
+    saved.find((w) => w.id === id);
+  if (loading || !ready || (!w && fetching))
+    return (
+      <div className="container page">
+        <Loading />
+      </div>
+    );
+  if (!w)
+    return (
+      <div className="container empty">
+        <p className="eyebrow">404 / WORKOUT NOT FOUND</p>
+        <h1>THIS LIFT ISN'T HERE.</h1>
+        <p>The workout link is invalid or the workout is unavailable.</p>
+        <Link className="btn primary" href="/">
+          Go to workouts
+        </Link>
+      </div>
+    );
+  const inPlan = plan.some((x) => x.id === w.id),
+    isSaved = saved.some((x) => x.id === w.id),
+    full = plan.filter((x) => !x.done).length >= 5;
+  return (
+    <section className="container page">
+      <Link href="/#library" className="back-link">
+        <ArrowLeft size={16} /> Back to library
+      </Link>
+      {w.sample && <p className="sample-label">OFFLINE SAMPLE WORKOUT</p>}
+      <div className="detail-grid">
+        <div className="detail-visual">
+          <WorkoutImage workout={w} />
+        </div>
+        <div>
+          <h1 className="detail-title">{w.name}</h1>
+          <p className="detail-description">{w.description}</p>
+          <Tags workout={w} />
+          <dl className="specs">
+            {[
+              ["Equipment", w.equipment],
+              ["Difficulty", w.difficulty],
+              ["Sets", w.sets],
+              ["Reps", w.reps],
+              ["Duration", `${w.duration} min`],
+              ["Calories", `${w.calories} kcal`],
+              ["Rating", w.rating.toFixed(1)],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <h2 className="instructions-title">INSTRUCTIONS</h2>
+          <ol className="instructions">
+            {w.instructions.map((step, i) => (
+              <li key={i}>
+                <span>{i + 1}.</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+          {!w.instructions.length && (
+            <p>Instructions were not provided by the API.</p>
+          )}
+          <div className="detail-actions">
+            <button
+              className="btn primary"
+              onClick={() => add(w)}
+              disabled={inPlan || full}
+            >
+              {inPlan ? <Check size={17} /> : <Plus size={17} />}{" "}
+              {inPlan
+                ? "Already in your plan"
+                : full
+                  ? "Plan full (5 active lifts)"
+                  : "Add to today's plan"}
+            </button>
+            <button
+              className="btn secondary"
+              onClick={() => save(w)}
+              disabled={isSaved}
+            >
+              <Bookmark size={17} />
+              {isSaved ? "Saved for later" : "Save for later"}
+            </button>
+          </div>
+          {full && !inPlan && (
+            <p className="helper">
+              Finish or remove a lift in My Plan to make room.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

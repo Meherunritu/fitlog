@@ -1,9 +1,160 @@
-'use client';
-import {useState,useEffect} from 'react';
-import {useSearchParams} from 'next/navigation';
-import Link from 'next/link';
-import {Check,X,Plus,Search,Dumbbell,Clock3,Flame} from 'lucide-react';
-import {useFit} from './fit-provider';
-import {Stats,WorkoutImage,Loading,Empty,Sort,detailHref} from './ui';
-import {sortWorkouts,planTotals} from '../lib/workouts.mjs';
-export function Plan(){const params=useSearchParams();const {plan,saved,loading,ready,remove,done,add}=useFit();const [tab,setTab]=useState(params.get('tab')==='saved'?'saved':'plan'),[sort,setSort]=useState('duration'),[query,setQuery]=useState('');useEffect(()=>{setTab(params.get('tab')==='saved'?'saved':'plan');},[params]);const totals=planTotals(plan);const rows=sortWorkouts((tab==='plan'?plan:saved).filter(w=>`${w.name} ${w.categories.join(' ')}`.toLowerCase().includes(query.toLowerCase())),sort);return <section className="container page plan-page"><h1>MY PLAN</h1><p className="subtitle">Cap of five lifts for today. Finish them, then load more.</p><div className="metric-grid">{[['Exercises',totals.exercises,Dumbbell],['Minutes',totals.minutes,Clock3],['Calories',totals.calories,Flame]].map(([title,value,Icon])=><div className="metric card" key={title}><div><p>{title}</p><strong>{value}</strong></div><Icon size={27}/></div>)}</div><div className="plan-toolbar"><div className="tabs" role="tablist" aria-label="Workout lists"><button role="tab" aria-selected={tab==='plan'} aria-controls="workout-list" className={tab==='plan'?'selected':''} onClick={()=>setTab('plan')}>Today's Plan <span>{plan.length}</span></button><button role="tab" aria-selected={tab==='saved'} aria-controls="workout-list" className={tab==='saved'?'selected':''} onClick={()=>setTab('saved')}>Saved <span>{saved.length}</span></button></div><Sort value={sort} onChange={setSort}/></div>{(plan.length>0||saved.length>0)&&<label className="search plan-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search your workouts…" aria-label="Search your workouts"/></label>}<div id="workout-list" role="tabpanel" aria-label={tab==='plan'?"Today's Plan":'Saved'}>{loading||!ready?<Loading/>:rows.length?<div className="plan-list">{rows.map(w=><article className={`plan-card card ${tab==='plan'&&w.done?'completed':''}`} key={w.id}><Link href={detailHref(w)} className="plan-thumb" aria-label={`View ${w.name}`}><WorkoutImage workout={w}/></Link><div className="plan-info"><h2>{w.name} {tab==='plan'&&w.done&&<span className="done-label">DONE</span>}</h2><p>{w.equipment}</p><Stats workout={w}/></div><div className="plan-actions"><Link className="btn secondary small" href={detailHref(w)}>View Details</Link>{tab==='plan'?<button className="btn done-button small" disabled={w.done} onClick={()=>done(w.id)}><Check size={15}/>{w.done?'Completed':'Mark as Done'}</button>:<button className="btn primary small" disabled={plan.some(p=>p.id===w.id)||plan.filter(p=>!p.done).length>=5} onClick={()=>add(w)}><Plus size={15}/>{plan.some(p=>p.id===w.id)?'In plan':'Add to plan'}</button>}<button className="remove-button" aria-label={`Remove ${w.name} from ${tab==='plan'?'plan':'saved'}`} onClick={()=>remove(w.id,tab)}><X size={18}/></button></div></article>)}</div>:<Empty search={Boolean(query)}/>}</div></section>;}
+"use client";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Check, X, Plus, Search, Dumbbell, Clock3, Flame } from "lucide-react";
+import { useFit } from "./fit-provider";
+import { Stats, WorkoutImage, Loading, Empty, Sort, detailHref } from "./ui";
+import { sortWorkouts, planTotals } from "../lib/workouts.mjs";
+export function Plan() {
+  const params = useSearchParams();
+  const { plan, saved, loading, ready, remove, done, add } = useFit();
+  const [tab, setTab] = useState(
+      params.get("tab") === "saved" ? "saved" : "plan",
+    ),
+    [sort, setSort] = useState("duration"),
+    [query, setQuery] = useState("");
+  useEffect(() => {
+    setTab(params.get("tab") === "saved" ? "saved" : "plan");
+  }, [params]);
+  const totals = planTotals(plan);
+  const rows = sortWorkouts(
+    (tab === "plan" ? plan : saved).filter((w) =>
+      `${w.name} ${w.categories.join(" ")}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+    ),
+    sort,
+  );
+  return (
+    <section className="container page plan-page">
+      <h1>MY PLAN</h1>
+      <p className="subtitle">
+        Cap of five lifts for today. Finish them, then load more.
+      </p>
+      <div className="metric-grid">
+        {[
+          ["Exercises", totals.exercises, Dumbbell],
+          ["Minutes", totals.minutes, Clock3],
+          ["Calories", totals.calories, Flame],
+        ].map(([title, value, Icon]) => (
+          <div className="metric card" key={title}>
+            <div>
+              <p>{title}</p>
+              <strong>{value}</strong>
+            </div>
+            <Icon size={27} />
+          </div>
+        ))}
+      </div>
+      <div className="plan-toolbar">
+        <div className="tabs" role="tablist" aria-label="Workout lists">
+          <button
+            role="tab"
+            aria-selected={tab === "plan"}
+            aria-controls="workout-list"
+            className={tab === "plan" ? "selected" : ""}
+            onClick={() => setTab("plan")}
+          >
+            Today's Plan <span>{plan.length}</span>
+          </button>
+          <button
+            role="tab"
+            aria-selected={tab === "saved"}
+            aria-controls="workout-list"
+            className={tab === "saved" ? "selected" : ""}
+            onClick={() => setTab("saved")}
+          >
+            Saved <span>{saved.length}</span>
+          </button>
+        </div>
+        <Sort value={sort} onChange={setSort} />
+      </div>
+      {(plan.length > 0 || saved.length > 0) && (
+        <label className="search plan-search">
+          <Search size={17} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search your workouts…"
+            aria-label="Search your workouts"
+          />
+        </label>
+      )}
+      <div
+        id="workout-list"
+        role="tabpanel"
+        aria-label={tab === "plan" ? "Today's Plan" : "Saved"}
+      >
+        {loading || !ready ? (
+          <Loading />
+        ) : rows.length ? (
+          <div className="plan-list">
+            {rows.map((w) => (
+              <article
+                className={`plan-card card ${tab === "plan" && w.done ? "completed" : ""}`}
+                key={w.id}
+              >
+                <Link
+                  href={detailHref(w)}
+                  className="plan-thumb"
+                  aria-label={`View ${w.name}`}
+                >
+                  <WorkoutImage workout={w} />
+                </Link>
+                <div className="plan-info">
+                  <h2>
+                    {w.name}{" "}
+                    {tab === "plan" && w.done && (
+                      <span className="done-label">DONE</span>
+                    )}
+                  </h2>
+                  <p>{w.equipment}</p>
+                  <Stats workout={w} />
+                </div>
+                <div className="plan-actions">
+                  <Link className="btn secondary small" href={detailHref(w)}>
+                    View Details
+                  </Link>
+                  {tab === "plan" ? (
+                    <button
+                      className="btn done-button small"
+                      disabled={w.done}
+                      onClick={() => done(w.id)}
+                    >
+                      <Check size={15} />
+                      {w.done ? "Completed" : "Mark as Done"}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn primary small"
+                      disabled={
+                        plan.some((p) => p.id === w.id) ||
+                        plan.filter((p) => !p.done).length >= 5
+                      }
+                      onClick={() => add(w)}
+                    >
+                      <Plus size={15} />
+                      {plan.some((p) => p.id === w.id)
+                        ? "In plan"
+                        : "Add to plan"}
+                    </button>
+                  )}
+                  <button
+                    className="remove-button"
+                    aria-label={`Remove ${w.name} from ${tab === "plan" ? "plan" : "saved"}`}
+                    onClick={() => remove(w.id, tab)}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <Empty search={Boolean(query)} />
+        )}
+      </div>
+    </section>
+  );
+}

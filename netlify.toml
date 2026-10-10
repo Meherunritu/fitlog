@@ -1,0 +1,6 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+# Exported App Router directories support direct links and refreshes.
+# Unknown URLs use Next's generated 404 page, not a blanket SPA rewrite.
