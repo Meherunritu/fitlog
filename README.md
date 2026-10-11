@@ -69,6 +69,10 @@ If both APIs fail, FitLog shows the last successful locally cached API response.
 
 Plan and saved data are browser-local; they are not shared across devices and do not reset automatically at midnight. Counters and totals include completed plan entries until removed. The five-lift limit counts unfinished entries.
 
+##Deployment 
+
+Netlify - https://zesty-mooncake-1f80e7.netlify.app 
+
 
 ## Validation
 
