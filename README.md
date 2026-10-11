@@ -69,17 +69,6 @@ If both APIs fail, FitLog shows the last successful locally cached API response.
 
 Plan and saved data are browser-local; they are not shared across devices and do not reset automatically at midnight. Counters and totals include completed plan entries until removed. The five-lift limit counts unfinished entries.
 
-## Deployment
-
-### Vercel
-
-Import your own GitHub repository. Set **Framework Preset: Next.js**, build command `npm run build`, and output directory `out` if the dashboard asks. No environment variables or API keys are needed. Make sure the production URL is publicly accessible to your examiner.
-
-### Netlify
-
-Import your repository. The included `netlify.toml` sets `npm run build` and `out` automatically. Alternatively, build locally and drag the contents of `out` into Netlify's manual deploy area.
-
-Avoid a catch-all rewrite to `/index.html`; the application exports separate routes and a real 404 page.
 
 ## Validation
 
@@ -87,15 +76,4 @@ Avoid a catch-all rewrite to `/index.html`; the application exports separate rou
 - `npm run build`: production compilation and static export.
 - Browser visual/interaction QA was not available in the build environment. Follow `SUBMISSION.md` before submitting.
 
-## Submission links
 
-Fill these with **your own public deployment and GitHub repository**, as required:
-
-- **Live Link:** TO BE FILLED AFTER PUBLIC DEPLOYMENT
-- **GitHub Repository Link:** TO BE FILLED AFTER PUSHING TO YOUR ACCOUNT
-
-See `SUBMISSION.md` for steps that preserve the included commit history.
-
-## Credits
-
-Assignment specification and provided assets: [ProgrammingHero1/B14-A6-Fit-Log](https://github.com/ProgrammingHero1/B14-A6-Fit-Log). Original design colours, fonts, and extracted illustration informed this implementation. The implementation has not been pixel-compared in a browser.
