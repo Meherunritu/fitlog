@@ -982,3 +982,14 @@ footer {
     animation: none !important;
   }
 }
+
+/* Fix hero image overlapping text */
+.hero > * {
+  grid-area: auto;
+  min-width: 0;
+}
+
+.hero-copy,
+.hero-art {
+  width: 100%;
+}
